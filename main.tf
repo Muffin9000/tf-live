@@ -6,7 +6,7 @@ resource "aws_launch_configuration" "example" {
   
   image_id = "ami-08c40ec9ead489470"
   instance_type = "t2.micro"
-  security_groups = [aws_security_group.instance.id]
+  security_groups = [aws_security_group.instance.id,aws_security_group.terrassh.id]
   key_name = "linux"
 
   user_data = <<-EOF
@@ -47,7 +47,7 @@ resource "aws_security_group" "instance" {
   }
 }
 
-resource "aws_sercurity_group" "instance" {
+resource "aws_security_group" "terrassh" {
     name = "terrafocm-example-ssh-access"
 
     ingress {
