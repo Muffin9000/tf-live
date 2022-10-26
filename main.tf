@@ -4,13 +4,12 @@ provider "aws" {
 
 resource "aws_launch_configuration" "example" {
   
-  image_id = "ami-06640050dc3f556bb"
+  image_id = "ami-08c40ec9ead489470"
   instance_type = "t2.micro"
   security_groups = [aws_security_group.instance.id]
+  key_name = "linux"
 
   user_data = <<-EOF
-    #!/bin/bash
-
     echo "Hello" > index.html
     nohup busybox httpd -f -p ${var.port} &
     EOF
@@ -46,6 +45,17 @@ resource "aws_security_group" "instance" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_sercurity_group" "instance" {
+    name = "terrafocm-example-ssh-access"
+
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["212.142.93.172/32"]
+    }
 }
 
 resource "aws_lb" "example" {
