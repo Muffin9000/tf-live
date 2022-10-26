@@ -9,7 +9,8 @@ resource "aws_launch_configuration" "example" {
   security_groups = [aws_security_group.instance.id,aws_security_group.terrassh.id]
   key_name = "linux"
 
-  user_data = <<-EOF
+  user_data = <<EOF
+    #!/bin/bash
     echo "Hello" > index.html
     nohup busybox httpd -f -p ${var.port} &
     EOF
@@ -54,7 +55,7 @@ resource "aws_security_group" "terrassh" {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = ["212.142.93.172/32"]
+        cidr_blocks = ["212.142.93.172/32","163.116.168.118/32"]
     }
 }
 
