@@ -2,19 +2,30 @@ provider "aws" {
     region = "us-east-1"
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "terraform-up-and-running-state-thedragoon"
+    key            = "stage/services/web-cluster/terraform.tfstate"
+    region         = "us-east-1"
+
+    dynamodb_table = "terraform-up-and-running-locks"
+    encrypt        = true
+  }
+}
+
 resource "aws_launch_configuration" "example" {
   
-  image_id = "ami-08c40ec9ead489470"
+  image_id = "ami-06640050dc3f556bb"
   instance_type = "t2.micro"
   security_groups = [aws_security_group.instance.id,aws_security_group.terrassh.id]
   key_name = "linux"
 
-  user_data = <<EOF
-    #!/bin/bash
-    echo "Hello" > index.html
-    nohup busybox httpd -f -p ${var.port} &
-    EOF
-
+  user_data = templatefile("user-data.sh", {
+    server_port = var.port
+    db_address  = data.terraform_remote_state.db.outputs.address
+    db_port     = data.terraform_remote_state.db.outputs.port
+  })
+  
   lifecycle {
     create_before_destroy = true
   }
@@ -135,10 +146,14 @@ resource "aws_security_group" "alb" {
   }
 }
 
-variable "port" {
-    description = "set igress from and to port for the security policy"
-    type = number
-    default = 8080
+data "terraform_remote_state" "db" {
+  backend = "s3"
+
+  config = {
+    bucket = "terraform-up-and-running-state-thedragoon"
+    key    = "stage/data-stores/mysql/terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
 data "aws_vpc" "default" {
@@ -151,9 +166,3 @@ data "aws_subnets" "default" {
         values = [data.aws_vpc.default.id]
     }
 }
-
-output "alb_dns_name" {
-    value = aws_lb.example.dns_name
-    description = "The domain name of the load balancer"
-}
-
