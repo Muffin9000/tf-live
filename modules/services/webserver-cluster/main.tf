@@ -1,4 +1,12 @@
 
+locals {
+  http_port    = 80
+  any_port     = 0
+  any_protocol = "-1"
+  tcp_protocol = "tcp"
+  all_ips      = ["0.0.0.0/0"]
+}
+
 resource "aws_launch_configuration" "example" {
   
   image_id = "ami-08c40ec9ead489470"
@@ -6,10 +14,10 @@ resource "aws_launch_configuration" "example" {
   security_groups = [aws_security_group.instance.id,aws_security_group.terrassh.id]
   key_name = "linux"
 
-  user_data = templatefile("user-data.sh", {
+  user_data = templatefile("${path.module}/user-data.sh", {
     server_port = var.port
-    db_address  = data.terraform_remote_state.db.outputs.address
-    db_port     = data.terraform_remote_state.db.outputs.port
+    mysql_address  = data.terraform_remote_state.db.outputs.mysql_address
+    mysql_port     = data.terraform_remote_state.db.outputs.mysql_port
   })
   
   lifecycle {
@@ -40,8 +48,8 @@ resource "aws_security_group" "instance" {
   ingress {
     from_port   = var.port
     to_port     = var.port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = local.tcp_protocol
+    cidr_blocks = local.all_ips
   }
 }
 
@@ -61,18 +69,18 @@ resource "aws_security_group" "alb" {
 
   # Allow inbound HTTP requests
   ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port = local.http_port
+    to_port = local.http_port
+    protocol = local.tcp_protocol
+    cidr_blocks = local.all_ips
   }
  
   # Allow all outbound requests
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port = local.any_port
+    to_port = local.any_port
+    protocol = local.any_protocol
+    cidr_blocks = local.all_ips
   }
 }
 
@@ -102,7 +110,7 @@ resource "aws_lb_target_group" "asg" {
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.example.arn
-  port = 80
+  port = local.http_port
   protocol = "HTTP"
 
   default_action {

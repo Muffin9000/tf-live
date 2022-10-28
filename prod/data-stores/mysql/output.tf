@@ -1,9 +1,9 @@
-output "address" {
-    value = aws_db_instance.example.address
+output "mysql_address" {
+    value = module.mysql.myql_address
     description = "database endpoint"
 }
 
-output "port" {
-  value = aws_db_instance.example.port
+output "mysql_port" {
+  value = module.mysql.myql_port
   description = "database port"
 }

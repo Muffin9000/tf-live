@@ -12,7 +12,8 @@ module "mysql" {
   source = "../../../modules/data-stores/mysql"
 
   cluster_name    = "stage"
-  db_username     = var.db_username
-  db_password     = var.db_password
+  db_username     = "mysqluser"
+  db_password     = "mysqlSom3th!ngelse"
+  instance_class  = "db.t2.micro"
 }
 
