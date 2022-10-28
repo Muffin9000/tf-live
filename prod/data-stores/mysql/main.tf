@@ -9,10 +9,11 @@ terraform {
 }
 
 module "mysql" {
-  source = "../../../modules/data-stores/mysql"
+  #source = "../../../../modules/data-stores/mysql"
+  source = "github.com/Muffin9000/tf-modules//data-stores/mysql/?ref=v0.0.1"
 
   cluster_name    = "prod"
-  db_username     = var.db_username
-  db_password     = var.db_password
+  db_username     = "mysqluserprod"
+  db_password     = "mysqlSom3th!ngelsePROD"
 }
 
