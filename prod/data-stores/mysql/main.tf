@@ -4,14 +4,14 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    key            = "stage/data-stores/mysql/terraform.tfstate"
+    key            = "prod/data-stores/mysql/terraform.tfstate"
   }
 }
 
 module "mysql" {
   source = "../../../modules/data-stores/mysql"
 
-  cluster_name    = "stage"
+  cluster_name    = "prod"
   db_username     = var.db_username
   db_password     = var.db_password
 }
