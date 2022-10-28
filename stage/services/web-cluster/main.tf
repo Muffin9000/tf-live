@@ -4,12 +4,18 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket         = "terraform-up-and-running-state-thedragoon"
     key            = "stage/services/web-cluster/terraform.tfstate"
-    region         = "us-east-1"
+  }
+}
 
-    dynamodb_table = "terraform-up-and-running-locks"
-    encrypt        = true
+data "terraform_remote_state" "db" {
+  backend = "s3"
+
+  config = {
+    bucket = var.db_remote_state_bucket
+    key    = var.db_remote_state_key
+    region = "us-east-1"
+
   }
 }
 
@@ -143,16 +149,6 @@ resource "aws_security_group" "alb" {
     to_port = 0
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-data "terraform_remote_state" "db" {
-  backend = "s3"
-
-  config = {
-    bucket = "terraform-up-and-running-state-thedragoon"
-    key    = "stage/data-stores/mysql/terraform.tfstate"
-    region = "us-east-1"
   }
 }
 
