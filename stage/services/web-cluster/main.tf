@@ -21,7 +21,7 @@ data "terraform_remote_state" "db" {
 
 resource "aws_launch_configuration" "example" {
   
-  image_id = "ami-06640050dc3f556bb"
+  image_id = "ami-08c40ec9ead489470"
   instance_type = "t2.micro"
   security_groups = [aws_security_group.instance.id,aws_security_group.terrassh.id]
   key_name = "linux"
@@ -45,7 +45,7 @@ resource "aws_autoscaling_group" "example" {
   health_check_type = "ELB"
 
   min_size = 2
-  max_size = 10
+  max_size = 3
 
   tag {
     key                 = "Name"
